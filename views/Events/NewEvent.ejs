@@ -1,0 +1,102 @@
+<% layout('layouts/layout') %>
+<% locals.title = 'Create Event' %>
+
+<!-- Wrapper for Light Theme -->
+<div class="bg-white min-h-screen text-slate-900 py-10 flex items-center justify-center">
+    <main class="w-full max-w-2xl px-4 sm:px-6">
+
+        <div class="mb-6">
+            <a href="/" class="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors group">
+                <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Form Card -->
+        <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+            
+            <!-- Header -->
+            <div class="px-8 py-6 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white">
+                <h1 class="text-2xl font-bold text-black tracking-tight">Create New Event</h1>
+                <p class="text-gray-600 text-sm mt-1">Schedule a meeting, festival, or maintenance activity.</p>
+            </div>
+
+            <!-- Form -->
+            <form action="/events" method="POST" class="p-8 space-y-6">
+                
+                <!-- Title -->
+                <div>
+                    <label for="title" class="block text-sm font-bold text-slate-800 mb-2">Event Title</label>
+                    <input 
+                        type="text" 
+                        name="eventData[title]" 
+                        id="title" 
+                        required
+                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-black placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-medium"
+                        placeholder="e.g. Diwali Celebration"
+                    >
+                </div>
+
+                <!-- Date & Category Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- Date -->
+                    <div>
+                        <label for="date" class="block text-sm font-bold text-slate-800 mb-2">Date</label>
+                        <input 
+                            type="date" 
+                            name="eventData[date]" 
+                            id="date" 
+                            required
+                            class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-medium"
+                        >
+                    </div>
+
+                    <!-- Category -->
+                    <div>
+                        <label for="category" class="block text-sm font-bold text-slate-800 mb-2">Category</label>
+                        <select 
+                            name="eventData[category]" 
+                            id="category" 
+                            required
+                            class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-black focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none font-medium"
+                        >
+                            <option value="" disabled selected>Select Category</option>
+                            <option value="General">General</option>
+                            <option value="Meeting">Meeting</option>
+                            <option value="Festival">Festival</option>
+                            <option value="Maintenance">Maintenance</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label for="description" class="block text-sm font-bold text-slate-800 mb-2">Description</label>
+                    <textarea 
+                        name="eventData[description]" 
+                        id="description" 
+                        rows="4" 
+                        required
+                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 text-black placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-medium"
+                        placeholder="Details about the event..."
+                    ></textarea>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-end gap-4 pt-4 border-t border-slate-100 mt-2">
+                    <a href="/events" class="px-6 py-2.5 rounded-lg text-sm font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-all">
+                        Cancel
+                    </a>
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2.5 rounded-lg text-sm font-bold shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5">
+                        Create Event
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+    </main>
+</div>

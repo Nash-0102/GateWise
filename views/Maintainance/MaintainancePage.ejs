@@ -1,0 +1,134 @@
+<% layout('layouts/layout') %>
+<% locals.title = 'All Maintenance' %>
+
+<!-- Main Content Area -->
+<main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 w-full">
+
+    <div class="mb-6">
+        <a href="/" class="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors group">
+            <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Page Header & Action Button -->
+    <header class="mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex items-center space-x-3 mb-4 sm:mb-0">
+            <div class="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center shadow-sm">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-4xl font-extrabold text-black">
+                    All Maintenance
+                </h1>
+                <p class="mt-1 text-gray-600 font-medium text-lg">Track and manage all maintenance requests and schedules.</p>
+            </div>
+        </div>
+        
+        <!-- Create Maintenance Button -->
+         <%if(currUser && currUser.role==="Secretary"){ %>
+        <div class="flex-shrink-0">
+            <form action="/maintains/new" method="get">
+                <button 
+                    type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2 transition-all duration-200 flex items-center space-x-2"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    <span>Create New Maintenance</span>
+                </button>
+            </form>
+        </div>
+        <% } %> 
+    </header>
+
+    <!-- Maintenance List Container Card -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+        
+        <!-- List -->
+        <ul class="divide-y divide-slate-100">
+            
+            <% if(allMaintain && allMaintain.length > 0) { %>
+                
+                <% for(let maintain of allMaintain){ %>
+                    <li class="group">
+                        <a href="/maintains/<%= maintain._id%>" class="block p-6 hover:bg-slate-50 transition-all duration-200 border-l-4 border-transparent hover:border-blue-500">
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="flex-1 min-w-0">
+                                    <!-- Maintenance Icon & Title -->
+                                    <div class="flex items-start space-x-4">
+                                        <div class="w-10 h-10 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-100 transition-colors">
+                                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <h3 class="text-lg font-bold text-black group-hover:text-blue-700 transition-colors truncate">
+                                                <%= maintain.title %>
+                                            </h3>
+                                            <div class="mt-2 flex flex-wrap items-center gap-2">
+                                                <% if (maintain.location) { %>
+                                                    <span class="text-xs font-bold px-2 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200 flex items-center space-x-1">
+                                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                                        </svg>
+                                                        <span><%= maintain.location %></span>
+                                                    </span>
+                                                <% } %>
+                                                <% if (maintain.cost) { %>
+                                                    <span class="text-xs font-bold px-2 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-100">
+                                                        ₹<%= maintain.cost %>
+                                                    </span>
+                                                <% } %>
+                                            </div>
+                                            <% if (maintain.description) { %>
+                                                <p class="mt-2 text-sm text-gray-700 font-medium line-clamp-2">
+                                                    <%= maintain.description %>
+                                                </p>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Go to arrow -->
+                                <div class="flex-shrink-0 flex items-center">
+                                    <svg class="w-5 h-5 text-gray-400 group-hover:text-blue-600 transform group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                <% } %>
+
+            <% } else { %>
+                <!-- Empty State -->
+                <li class="p-12 text-center">
+                    <div class="w-16 h-16 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                        </svg>
+                    </div>
+                    <h4 class="text-xl font-bold text-black mb-2">No Maintenance Records Found</h4>
+                    <p class="text-gray-600 font-medium mb-6">Click "Create New Maintenance" to add the first one.</p>
+                    <form action="/maintains/new" method="get" class="inline-block">
+                        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-lg shadow-sm transition-all duration-200">
+                            Create Your First Maintenance Record
+                        </button>
+                    </form>
+                </li>
+            <% } %>
+
+        </ul>
+    </div>
+
+</main>

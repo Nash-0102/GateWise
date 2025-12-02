@@ -1,0 +1,53 @@
+<!-- Success Message -->
+<% if(success && success.length) { %>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 z-50 relative" id="flash-success">
+        <div class="flex items-center justify-between gap-x-6 overflow-hidden rounded-lg bg-emerald-500/10 px-6 py-3 border border-emerald-500/20 shadow-lg backdrop-blur-md">
+            <div class="flex items-center gap-x-4">
+                <!-- Icon -->
+                <div class="flex-none rounded-full bg-emerald-500/20 p-1 text-emerald-400">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <!-- Text -->
+                <p class="text-sm font-medium leading-6 text-emerald-100">
+                    <%= success %>
+                </p>
+            </div>
+            <!-- Close Button -->
+            <button type="button" class="-m-1.5 flex-none p-1.5 text-emerald-300 hover:text-emerald-100 transition-colors" onclick="document.getElementById('flash-success').style.display='none'">
+                <span class="sr-only">Dismiss</span>
+                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                </svg>
+            </button>
+        </div>
+    </div>
+<% } %>
+
+<!-- Error Message -->
+<% if(error && error.length) { %>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 z-50 relative" id="flash-error">
+        <div class="flex items-center justify-between gap-x-6 overflow-hidden rounded-lg bg-rose-500/10 px-6 py-3 border border-rose-500/20 shadow-lg backdrop-blur-md">
+            <div class="flex items-center gap-x-4">
+                <!-- Icon -->
+                <div class="flex-none rounded-full bg-rose-500/20 p-1 text-rose-400">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                    </svg>
+                </div>
+                <!-- Text -->
+                <p class="text-sm font-medium leading-6 text-rose-100">
+                    <%= error %>
+                </p>
+            </div>
+            <!-- Close Button -->
+            <button type="button" class="-m-1.5 flex-none p-1.5 text-rose-300 hover:text-rose-100 transition-colors" onclick="document.getElementById('flash-error').style.display='none'">
+                <span class="sr-only">Dismiss</span>
+                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                </svg>
+            </button>
+        </div>
+    </div>
+<% } %>

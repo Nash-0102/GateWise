@@ -1,0 +1,100 @@
+<% layout('layouts/layout') %>
+<% locals.title = 'All Events' %>
+
+<!-- Wrapper for Light Theme Background -->
+<div class="bg-white min-h-screen text-slate-900 py-10">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Back to Dashboard Button -->
+        <div class="mb-6">
+            <a href="/" class="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors group">
+                <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+
+        <!-- Page Header -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+            <div>
+                <h1 class="text-3xl font-extrabold text-black tracking-tight">Society Events</h1>
+                <p class="text-gray-600 font-medium mt-2">Stay updated with upcoming meetings, festivals, and activities.</p>
+            </div>
+            
+            <!-- Add Event Button -->
+             <%if(currUser && currUser.role==="Secretary"){ %>
+            <a href="/events/NewEvent" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-bold transition-all shadow-sm hover:shadow-md group">
+                <svg class="w-5 h-5 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                <span>Add New Event</span>
+            </a>
+            <% } %>
+        </div>
+
+        <!-- Events Grid -->
+        <% if (allEvent && allEvent.length > 0) { %>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <% for(let event of allEvent) { %>
+                    <!-- Event Card -->
+                    <a href="/events/<%= event._id %>" class="group relative block bg-white border border-slate-200 rounded-2xl p-6 hover:bg-slate-50 hover:border-blue-500 transition-all duration-200 hover:-translate-y-1 shadow-sm hover:shadow-md">
+                        
+                        <!-- Header: Category & Date -->
+                        <div class="flex justify-between items-start mb-4">
+                            <!-- Category Badge -->
+                            <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-bold border
+                                <%= event.category === 'Maintenance' ? 'bg-rose-50 text-rose-600 border-rose-100' : 
+                                   (event.category === 'Meeting' ? 'bg-amber-50 text-amber-600 border-amber-100' : 
+                                   'bg-blue-50 text-blue-600 border-blue-100') %>">
+                                <%= event.category || 'General' %>
+                            </span>
+                            
+                            <!-- Date (Optional Logic) -->
+                            <% if(event.start) { %>
+                                <span class="text-xs text-slate-500 font-bold font-mono">
+                                    <%= new Date(event.start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) %>
+                                </span>
+                            <% } %>
+                        </div>
+
+                        <!-- Title -->
+                        <h3 class="text-lg font-bold text-black group-hover:text-blue-600 transition-colors mb-2 line-clamp-1">
+                            <%= event.title %>
+                        </h3>
+
+                        <!-- Description Snippet -->
+                        <% if(event.description) { %>
+                            <p class="text-sm text-gray-600 font-medium line-clamp-2 leading-relaxed mb-4">
+                                <%= event.description %>
+                            </p>
+                        <% } else { %>
+                            <p class="text-sm text-slate-400 italic mb-4">No description provided.</p>
+                        <% } %>
+
+                        <!-- Footer: "View Details" Link -->
+                        <div class="flex items-center text-sm font-bold text-slate-500 group-hover:text-blue-600 transition-colors mt-auto">
+                            View Details
+                            <svg class="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                        </div>
+                    </a>
+                <% } %>
+
+            </div>
+        <% } else { %>
+            
+            <!-- Empty State (Jab koi event na ho) -->
+            <div class="text-center py-20 bg-slate-50 rounded-3xl border border-slate-200 border-dashed">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white border border-slate-100 mb-4 text-slate-400">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                </div>
+                <h3 class="text-lg font-bold text-black">No events found</h3>
+                <p class="text-gray-600 font-medium mt-1 max-w-sm mx-auto">It looks quiet here. Create a new event to get started.</p>
+                <a href="/events/NewEvent" class="mt-6 inline-flex items-center text-blue-600 hover:text-blue-700 font-bold transition-colors">
+                    Create your first event &rarr;
+                </a>
+            </div>
+
+        <% } %>
+
+    </main>
+</div>

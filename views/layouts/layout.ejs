@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Set title from the view file, with a fallback -->
+    <title><%= typeof title !== 'undefined' ? title : 'SocietyHub' %></title>
+    
+    <!-- 1. Include Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 2. Include Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- 3. Include Heroicons for icons -->
+    <script src="https://unpkg.com/@heroicons/react@2.0.18/24/outline/index.js" type="module"></script>
+    <!-- 4. Custom Tailwind configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        dark: {
+                            bg: '#121212',
+                            surface: '#1E1E1E',
+                            card: '#252525',
+                        },
+                        neon: {
+                            blue: '#00D9FF',
+                            violet: '#8B5CF6',
+                            teal: '#14B8A6',
+                        }
+                    },
+                    backdropBlur: {
+                        xs: '2px',
+                    },
+                    boxShadow: {
+                        'glow-blue': '0 0 20px rgba(0, 217, 255, 0.3)',
+                        'glow-violet': '0 0 20px rgba(139, 92, 246, 0.3)',
+                        'glow-teal': '0 0 20px rgba(20, 184, 166, 0.3)',
+                        'card-dark': '0 8px 32px rgba(0, 0, 0, 0.4)',
+                    },
+                },
+            },
+        }
+    </script>
+    <!-- 5. Custom CSS for animations and effects -->
+    <style>
+        * {
+            transition: all 0.3s ease;
+        }
+        
+        body {
+            background-color: #F8FAFC; /* slate-50 */
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(217,91%,60%,0.1) 0px, transparent 50%),
+                radial-gradient(at 50% 0%, hsla(224,91%,60%,0.1) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, hsla(217,91%,60%,0.1) 0px, transparent 50%);
+            min-height: 100vh;
+        }
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(226, 232, 240, 0.6); /* slate-200/60 */
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8); /* slate-200/80 */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+        
+        .hover-lift {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased flex flex-col min-h-screen text-slate-900">
+
+    <!-- 1. Include the Navbar Partial -->
+    <%- include('../partials/navbar') %>
+
+    <!-- 
+      2. EJS-Mate Body Placeholder
+      This is where your dashboard.ejs content will be injected 
+    -->
+          <%- include('../partials/flash') %>
+    <%- body %>
+
+    <!-- 3. Include the Footer Partial -->
+    <%- include('../partials/footer') %>
+
+</body>
+</html> 

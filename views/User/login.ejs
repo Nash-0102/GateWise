@@ -1,0 +1,63 @@
+<% layout('layouts/layout') %>
+<% locals.title = 'login' %>
+
+<!-- Wrapper for dark background alignment -->
+<div class="flex min-h-[calc(100vh-4rem)] flex-col justify-center py-12 sm:px-6 lg:px-8 bg-slate-950">
+    
+    <div class="sm:mx-auto sm:w-full sm:max-w-md">
+        <!-- Optional: Logo here -->
+        <h2 class="mt-6 text-center text-3xl font-bold tracking-tight text-white">
+            Login 
+        </h2>
+        <p class="mt-2 text-center text-sm text-slate-400">
+            Join your society community today
+        </p>
+    </div>
+
+    <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <!-- Glass Card -->
+        <div class="bg-white/[0.02] py-8 px-4 shadow-xl ring-1 ring-white/10 sm:rounded-xl sm:px-10 backdrop-blur-sm">
+            
+            <form class="space-y-6" action="/login" method="post">
+                
+                <!-- Username Field -->
+                <div>
+                    <label for="username" class="block text-sm font-medium leading-6 text-slate-200">Username</label>
+                    <div class="mt-2">
+                        <!-- FIX: Added name="username" -->
+                        <input id="username" name="username" type="text" required 
+                            class="block w-full rounded-md border-0 bg-white/5 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 placeholder:text-slate-500 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 transition-all"
+                            placeholder="johndoe123">
+                    </div>
+                </div>
+
+
+                <!-- Password Field -->
+                <div>
+                    <label for="password" class="block text-sm font-medium leading-6 text-slate-200">Password</label>
+                    <div class="mt-2">
+                        <!-- FIX: Added name="password" -->
+                        <input id="password" name="password" type="password" autocomplete="new-password" required 
+                            class="block w-full rounded-md border-0 bg-white/5 py-2 text-white shadow-sm ring-1 ring-inset ring-white/10 placeholder:text-slate-500 focus:ring-2 focus:ring-inset focus:ring-blue-500 sm:text-sm sm:leading-6 transition-all"
+                            placeholder="••••••••">
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div>
+                    <button type="submit" 
+                        class="flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-colors duration-200">
+                        Sign Up
+                    </button>
+                </div>
+            </form>
+
+            <p class="mt-6 text-center text-sm text-slate-400">
+                Not a member?
+                <a href="/signup" class="font-semibold leading-6 text-blue-400 hover:text-blue-300 transition-colors">
+                    Signup here
+                </a>
+            </p>
+        </div>
+    </div>
+</div>

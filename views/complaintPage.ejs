@@ -1,0 +1,123 @@
+<% layout('layouts/layout') %>
+<% locals.title = 'All Complaints' %>
+
+<!-- Main Content Area -->
+<main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 w-full">
+
+    <div class="mb-6">
+        <a href="/" class="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors group">
+            <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Page Header & Action Button -->
+    <header class="mb-10 flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex items-center space-x-3 mb-4 sm:mb-0">
+            <div class="w-12 h-12 rounded-xl bg-teal-600 flex items-center justify-center shadow-sm">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+            </div>
+            
+            <div>
+                <h1 class="text-4xl font-extrabold text-black">
+                    All Complaints
+                </h1>
+                <p class="mt-1 text-gray-600 font-medium text-lg">Track and manage all resident complaints and issues.</p>
+            </div>
+        </div>
+        
+        
+        <!-- Create Complaint Button -->
+        <div class="flex-shrink-0">
+            <form action="/complaints/new" method="get">
+                <button 
+                    type="submit"
+                    class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 rounded-xl shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-teal-600 focus:ring-offset-2 transition-all duration-200 flex items-center space-x-2"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    <span>Create New Complaint</span>
+                </button>
+            </form>
+        </div>
+    </header>
+
+    <!-- Complaints List Container Card -->
+    <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+        
+        <!-- List -->
+        <ul class="divide-y divide-slate-100">
+            
+            <% if(allComplaints && allComplaints.length > 0) { %>
+                
+                <% for(let complaint of allComplaints){ %>
+                    <li class="group">
+                        <a href="/complaints/<%= complaint._id%>" class="block p-6 hover:bg-slate-50 transition-all duration-200 border-l-4 border-transparent hover:border-teal-500">
+                            <div class="flex items-start justify-between gap-4">
+                                
+                                <!-- Left Side (Icon, Title & Description) -->
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-start space-x-4">
+                                        <div class="w-10 h-10 rounded-lg bg-teal-50 border border-teal-100 flex items-center justify-center flex-shrink-0 group-hover:bg-teal-100 transition-colors">
+                                            <svg class="w-5 h-5 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <h3 class="text-lg font-bold text-black group-hover:text-teal-700 transition-colors truncate">
+                                                <%= complaint.title %>
+                                            </h3>
+                                            <% if (complaint.description) { %>
+                                                <p class="mt-2 text-sm text-gray-700 font-medium line-clamp-2">
+                                                    <%= complaint.description %>
+                                                </p>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Right Side (Status & Arrow) -->
+                                <div class="flex-shrink-0 flex items-center gap-3">
+                                    <!-- Status Badge -->
+                                    <span class="text-xs font-bold capitalize px-3 py-1.5 rounded-full flex-shrink-0
+                                        <%= complaint.status === 'Resolved' ? 'bg-green-50 text-green-600 border border-green-100' : (complaint.status === 'Pending' ? 'bg-yellow-50 text-yellow-600 border border-yellow-100' : 'bg-red-50 text-red-600 border border-red-100') %>">
+                                        <%= complaint.status %>
+                                    </span>
+                                    
+                                    <!-- Go to arrow -->
+                                    <svg class="w-5 h-5 text-gray-400 group-hover:text-teal-600 transform group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                <% } %>
+
+            <% } else { %>
+                <!-- Empty State -->
+                <li class="p-12 text-center">
+                    <div class="w-16 h-16 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <h4 class="text-xl font-bold text-black mb-2">No Complaints Found</h4>
+                    <p class="text-gray-600 font-medium mb-6">Click "Create New Complaint" to add the first one.</p>
+                    <form action="/complaints/new" method="get" class="inline-block">
+                        <button type="submit" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-5 rounded-lg shadow-sm transition-all duration-200">
+                            Create Your First Complaint
+                        </button>
+                    </form>
+                </li>
+            <% } %>
+
+        </ul>
+    </div>
+
+</main>

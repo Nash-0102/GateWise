@@ -1,0 +1,222 @@
+<% layout('layouts/layout') %>
+<% locals.title = 'Society Calendar' %>
+
+<!-- 1. Load FullCalendar Library -->
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+
+<!-- Wrapper for Dark Theme -->
+<div class="bg-slate-950 min-h-screen text-slate-300 py-10">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+
+
+              <!-- Back to Dashboard Button -->
+        <div class="mb-6">
+            <a href="/" class="inline-flex items-center gap-2 text-sm font-medium text-slate-400 hover:text-white transition-colors group">
+                <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
+                Back to Dashboard
+            </a>
+        </div>
+        
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-white tracking-tight">Event Calendar</h1>
+                <p class="text-slate-400 mt-1">View upcoming society schedules and notices.</p>
+            </div>
+            
+            <!-- Add Event Button -->
+            <a href="/events/NewEvent" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-blue-500/20">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                Add Event
+            </a>
+        </div>
+
+        <!-- CALENDAR CARD -->
+        <div class="bg-slate-900/50 border border-white/10 rounded-2xl p-6 shadow-xl backdrop-blur-sm">
+            <div id='calendar'></div>
+        </div>
+
+    </main>
+</div>
+
+<!-- CALENDAR SCRIPT -->
+<!-- FullCalendar bundle (if not already included) -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const calendarEl = document.getElementById('calendar');
+
+  // Helper: normalize server objects to FullCalendar events
+  function normalizeEvents(rawArray) {
+    if (!Array.isArray(rawArray)) return [];
+
+    return rawArray.map(item => {
+      // support Mongo _id or id
+      const id = item._id || item.id || item._id?.toString?.() || undefined;
+
+      const title = item.title || item.name || item.eventName || item.event_name || 'Untitled';
+      // common date fields
+      let start = item.start || item.date || item.start_date || item.from || item.from_date || null;
+      let end   = item.end   || item.to   || item.end_date   || item.to_date   || null;
+
+      // convert dd-mm-yyyy -> yyyy-mm-dd if needed (simple heuristic)
+      const ddmm = /^\d{1,2}-\d{1,2}-\d{4}$/;
+      if (typeof start === 'string' && ddmm.test(start)) {
+        const p = start.split('-'); start = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+      }
+      if (typeof end === 'string' && ddmm.test(end)) {
+        const p = end.split('-'); end = `${p[2]}-${p[1].padStart(2,'0')}-${p[0].padStart(2,'0')}`;
+      }
+
+      // If server provided JS Date or number (timestamp)
+      if (typeof start === 'number') start = new Date(start).toISOString();
+      if (typeof end === 'number') end = new Date(end).toISOString();
+
+      const extended = { ...item };
+      // ensure description normalized
+      extended.description = extended.description || extended.desc || extended.details || '';
+
+      return {
+        id,
+        title,
+        start,
+        end,
+        allDay: item.allDay === true || (start && start.length === 10 && !end) ? true : undefined,
+        extendedProps: extended
+      };
+    }).filter(ev => ev.start); // drop events with no start
+  }
+
+  // function to get events: prefer injected serverEvents then fallback to API
+  function loadEvents(fetchInfo, successCallback, failureCallback) {
+    // If server injected events exist, use them
+    if (window.serverEvents && Array.isArray(window.serverEvents) && window.serverEvents.length >= 0) {
+      console.log('Using server-injected events (window.serverEvents). Count:', window.serverEvents.length);
+      const mapped = normalizeEvents(window.serverEvents);
+      successCallback(mapped);
+      return;
+    }
+
+    // Fallback: fetch from API endpoint (if you have /event/data)
+    const url = '/event/data'; // keep this if you maintain API; otherwise inject serverEvents (recommended)
+    fetch(url, { method: 'GET', credentials: 'same-origin' })
+      .then(async res => {
+        if (!res.ok) throw new Error('Network response was not ok: ' + res.status);
+        const txt = await res.text();
+        let data;
+        try { data = txt ? JSON.parse(txt) : []; } catch(e) {
+          // maybe server returns object: { events: [...] }
+          console.error('Invalid JSON from /event/data:', e, txt);
+          throw e;
+        }
+        // handle nested shapes
+        const arr = Array.isArray(data) ? data : (Array.isArray(data.events) ? data.events : (Array.isArray(data.data) ? data.data : []));
+        const mapped = normalizeEvents(arr);
+        successCallback(mapped);
+      })
+      .catch(err => {
+        console.error('Failed to load events:', err);
+        failureCallback(err);
+      });
+  }
+
+  // Create and render calendar
+  const calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listWeek' },
+
+    // Use our loader
+    events: loadEvents,
+
+    // When user clicks empty date -> go to NewEvent page with date prefilled
+    dateClick: function(info) {
+      // info.dateStr is ISO 'YYYY-MM-DD'
+      const date = info.dateStr;
+      // Your New route: /events/NewEvent
+      window.location.href = '/events/NewEvent?date=' + encodeURIComponent(date);
+    },
+
+    // When user clicks an existing event -> go to show page (/events/:id)
+    eventClick: function(info) {
+      const eventId = info.event.id;
+      if (!eventId) {
+        alert('Event id missing — cannot open details.');
+        return;
+      }
+      // Redirect to show route in your app.js
+      window.location.href = '/events/' + encodeURIComponent(eventId);
+    },
+
+    eventTimeFormat: { hour: '2-digit', minute: '2-digit', hour12: false },
+    noEventsContent: 'No events this period'
+  });
+
+  calendar.render();
+
+  // optional: expose calendar globally for manual refetch from other pages/scripts
+  window.__societyCalendar = calendar;
+});
+</script>
+
+<!-- CSS OVERRIDES FOR DARK THEME -->
+<style>
+    /* 1. Main Text & Variables */
+    :root {
+        --fc-border-color: rgba(255, 255, 255, 0.1);
+        --fc-button-bg-color: #2563eb;      /* Blue-600 */
+        --fc-button-border-color: #2563eb;
+        --fc-button-hover-bg-color: #1d4ed8; /* Blue-700 */
+        --fc-button-active-bg-color: #1e40af;
+        --fc-page-bg-color: transparent;
+        --fc-neutral-bg-color: rgba(255, 255, 255, 0.05);
+        --fc-list-event-hover-bg-color: rgba(255, 255, 255, 0.05);
+        --fc-today-bg-color: rgba(37, 99, 235, 0.15); /* Highlight Today */
+    }
+
+    /* 2. Calendar Text Colors */
+    #calendar {
+        color: #e2e8f0; /* Slate-200 */
+        font-family: 'Inter', sans-serif;
+    }
+
+    #calendar a {
+        color: #e2e8f0;
+        text-decoration: none;
+    }
+
+    /* 3. Toolbar Title (Month Name) */
+    .fc .fc-toolbar-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: white;
+    }
+
+    /* 4. Days of Week Headings */
+    .fc-col-header-cell-cushion {
+        color: #94a3b8; /* Slate-400 */
+        padding-bottom: 10px;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.05em;
+    }
+
+    /* 5. Date Numbers */
+    .fc-daygrid-day-number {
+        color: #cbd5e1; /* Slate-300 */
+        padding: 8px;
+    }
+
+    /* 6. Event Bars */
+    .fc-event {
+        border: none;
+        border-radius: 4px;
+        padding: 2px 4px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+</style>

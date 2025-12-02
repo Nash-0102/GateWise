@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GateWise - Smart Society Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        rose: { light: '#E8D5DD' },
+                        lavender: { DEFAULT: '#D9ADDA' },
+                        purple: { muted: '#8D71B5', deep: '#613F82' },
+                        mint: { DEFAULT: '#CFE2D3' },
+                        green: { soft: '#709B7A' },
+                        teal: { DEFAULT: '#009B9B', deep: '#005B5B' },
+                        dark: { footer: '#0f1115' }
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 40px -10px rgba(97, 63, 130, 0.1)',
+                        'card': '0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
+                        'glow': '0 0 20px rgba(207, 226, 211, 0.5)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .hero-bg { background: linear-gradient(135deg, #FDFBFD 0%, #F4EFF4 100%); }
+        .blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.4; z-index: 0; }
+    </style>
+</head>
+<body class="hero-bg min-h-screen text-teal-deep font-sans overflow-x-hidden">
+
+    <!-- 1. Navbar -->
+    <%- include('navbar') %>
+
+    <!-- 2. Hero Section -->
+    <%- include('hero') %>
+
+    <!-- 3. Features Grid -->
+    <%- include('features') %>
+
+    <!-- 4. How It Works (You named this work.ejs) -->
+    <%- include('work') %>
+
+    <!-- 5. Product Demo -->
+    <%- include('demo') %>
+
+    <!-- 6. Footer -->
+    <%- include('footer') %>
+
+</body>
+</html>
