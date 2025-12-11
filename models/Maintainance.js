@@ -24,6 +24,10 @@ dueDate:{
     type:Date,
     required:true,
 },
+ houseNo: {
+        type: String,
+        required: true,  // <-- NEW FIELD
+    },
 frequency:{
     type:String,
     enum:["one-time" , "Monthly" , "Yearly" , "Quarterly" ],

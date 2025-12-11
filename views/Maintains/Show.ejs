@@ -1,0 +1,41 @@
+<% layout('layouts/layout') %>
+<% locals.title = maintain.title %>
+
+<div class="max-w-3xl mx-auto py-8 px-4">
+  <a href="/maintains" class="text-sm text-slate-500 mb-4 inline-block">← Back</a>
+
+  <div class="bg-white rounded shadow p-6">
+    <div class="flex items-start justify-between">
+      <div>
+        <h1 class="text-2xl font-bold mb-1"><%= maintain.title %></h1>
+        <p class="text-sm text-slate-500">House: <strong><%= maintain.houseNo %></strong></p>
+        <p class="text-sm text-slate-500">Owner: <strong><%= maintain.user?.profile?.fullName || maintain.user?.username %></strong></p>
+      </div>
+      <div class="text-right">
+        <div class="text-2xl font-bold">₹<%= maintain.amount %></div>
+        <div class="text-sm text-slate-500">Due: <%= new Date(maintain.dueDate).toLocaleDateString() %></div>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <h3 class="text-sm text-slate-600 mb-2">Description</h3>
+      <p class="text-slate-700"><%= maintain.description || 'No description' %></p>
+    </div>
+
+    <div class="mt-6 flex items-center gap-3">
+      <% if (currUser.role === 'Secretary') { %>
+        <a href="/maintains/<%= maintain._id %>/edit" class="px-4 py-2 bg-indigo-600 text-white rounded">Edit</a>
+
+        <form action="/maintains/<%= maintain._id %>?_method=DELETE" method="post" class="inline">
+          <button onclick="return confirm('Delete this bill?')" class="px-4 py-2 border rounded text-rose-600">Delete</button>
+        </form>
+      <% } %>
+
+      <% if (maintain.status !== 'paid' && (currUser.role === 'Secretary' || String(maintain.user?._id) === String(currUser._id))) { %>
+        <form action="/maintains/<%= maintain._id %>/pay" method="post" class="inline">
+          <button class="px-4 py-2 bg-emerald-500 text-white rounded">Mark Paid</button>
+        </form>
+      <% } %>
+    </div>
+  </div>
+</div>

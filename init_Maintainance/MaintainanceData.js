@@ -4,6 +4,7 @@ module.exports.data = [
     title: "Monthly Maintenance - March",
     description: "Regular monthly maintenance charges for society upkeep.",
     amount: 1500,
+     houseNo:"402",
     dueDate: "2025-03-10",
     frequency: "Monthly",
     status: "pending",

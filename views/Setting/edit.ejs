@@ -1,0 +1,126 @@
+<% layout('layouts/layout') %>
+<% locals.title = 'Edit Maintenance Setting' %>
+
+<!-- 
+  ROOT CONTAINER 
+  - Light Theme
+  - Custom Grid Background
+-->
+<div class="min-h-screen w-full bg-white relative overflow-y-auto">
+    
+    <!-- 1. GRID BACKGROUND -->
+    <div class="absolute inset-0 z-0 pointer-events-none" 
+         style="background-image: linear-gradient(to right, #e5e7eb 1px, transparent 1px), linear-gradient(to bottom, #e5e7eb 1px, transparent 1px); background-size: 40px 40px;">
+    </div>
+
+    <!-- 2. MAIN CONTENT -->
+    <main class="relative z-10 max-w-7xl mx-auto px-6 py-10 flex flex-col items-center">
+        
+        <div class="w-full max-w-2xl">
+            
+            <!-- Back Button -->
+            <div class="mb-8">
+                <a href="/setting" class="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-indigo-600 transition-colors group">
+                    <svg class="w-4 h-4 text-slate-400 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    Back to Settings
+                </a>
+            </div>
+
+            <!-- Form Card -->
+            <div class="bg-white/80 backdrop-blur-xl border border-white/60 shadow-lg rounded-2xl overflow-hidden">
+                
+                <!-- Header -->
+                <div class="px-8 py-6 border-b border-slate-100 bg-white/50">
+                    <div class="flex items-center gap-3 mb-1">
+                        <div class="p-2 bg-indigo-50 rounded-lg border border-indigo-100 text-indigo-600">
+                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        </div>
+                        <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Edit Setting</h1>
+                    </div>
+                    <p class="text-sm text-slate-500 ml-12">Update the maintenance rule details.</p>
+                </div>
+
+                <!-- Form -->
+                <form action="/setting/<%= setting._id %>?_method=PUT" method="POST" class="p-8 space-y-6">
+                    
+                    <!-- House Number -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                            House No
+                        </label>
+                        <input type="text" name="houseNo" value="<%= setting.houseNo %>" required 
+                            class="block w-full rounded-xl border-slate-200 bg-slate-50 text-slate-700 px-4 py-3 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm placeholder-slate-400 shadow-sm">
+                    </div>
+
+                    <!-- Title -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                            Title
+                        </label>
+                        <input type="text" name="title" value="<%= setting.title %>" required 
+                            class="block w-full rounded-xl border-slate-200 bg-slate-50 text-slate-700 px-4 py-3 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm placeholder-slate-400 shadow-sm">
+                    </div>
+
+                    <!-- Grid: Amount & Frequency -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- Amount -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                                Amount (₹)
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 font-sans">₹</span>
+                                <input type="number" name="amount" value="<%= setting.amount %>" step="0.01" min="0" required
+                                    class="block w-full rounded-xl border-slate-200 bg-slate-50 text-slate-700 pl-8 pr-4 py-3 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm placeholder-slate-400 shadow-sm">
+                            </div>
+                        </div>
+
+                        <!-- Frequency -->
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                                Frequency
+                            </label>
+                            <select name="frequency" 
+                                class="block w-full rounded-xl border-slate-200 bg-slate-50 text-slate-700 px-4 py-3 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm shadow-sm appearance-none">
+                                <option value="Monthly" <%= setting.frequency==='Monthly' ? 'selected' : '' %>>Monthly</option>
+                                <option value="one-time" <%= setting.frequency==='one-time' ? 'selected' : '' %>>One-time</option>
+                                <option value="Quarterly" <%= setting.frequency==='Quarterly' ? 'selected' : '' %>>Quarterly</option>
+                                <option value="Yearly" <%= setting.frequency==='Yearly' ? 'selected' : '' %>>Yearly</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Active Toggle -->
+                    <div class="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
+                        <input type="checkbox" id="active" name="active" <%= setting.active ? 'checked' : '' %> 
+                            class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500 focus:ring-2 cursor-pointer">
+                        <label for="active" class="text-sm font-medium text-slate-700 cursor-pointer select-none">
+                            Active (Enable this maintenance rule)
+                        </label>
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                            Description
+                        </label>
+                        <textarea name="description" rows="3" 
+                            class="block w-full rounded-xl border-slate-200 bg-slate-50 text-slate-700 px-4 py-3 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm placeholder-slate-400 shadow-sm resize-none"><%= setting.description %></textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="pt-6 border-t border-slate-100 flex items-center justify-between">
+                        <a href="/setting" class="text-sm font-medium text-slate-500 hover:text-slate-800 transition-colors">
+                            Cancel
+                        </a>
+                        <button type="submit" class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-200 transition-all hover:-translate-y-0.5">
+                            Save Changes
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </main>
+</div>

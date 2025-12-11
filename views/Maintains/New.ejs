@@ -1,0 +1,178 @@
+<% layout('layouts/layout') %>
+<% locals.title = 'Add Maintenance' %>
+
+<!-- 
+  ROOT CONTAINER 
+  - Light Theme
+  - Custom Grid Background
+-->
+<div class="min-h-screen w-full bg-white relative overflow-y-auto">
+    
+    <!-- 1. GRID BACKGROUND -->
+    <div class="absolute inset-0 z-0 pointer-events-none" 
+         style="background-image: linear-gradient(to right, #e5e7eb 1px, transparent 1px), linear-gradient(to bottom, #e5e7eb 1px, transparent 1px); background-size: 40px 40px;">
+    </div>
+
+    <!-- 2. MAIN CONTENT -->
+    <main class="relative z-10 max-w-7xl mx-auto px-6 py-10 flex flex-col items-center">
+        
+        <div class="w-full max-w-2xl">
+            
+            <!-- Back Button -->
+            <div class="mb-8">
+                <a href="/maintains" class="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors group">
+                    <svg class="w-4 h-4 text-slate-400 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                    Back to Maintenance
+                </a>
+            </div>
+
+            <!-- Optional Server-Side Error Message -->
+            <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+                <div class="mb-6 p-4 rounded-xl bg-rose-50 border border-rose-200 flex items-center gap-3 text-rose-700">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <p class="text-sm font-medium"><%= errorMessage %></p>
+                </div>
+            <% } %>
+
+            <!-- Form Card -->
+            <div class="bg-white/80 backdrop-blur-xl border border-white/60 shadow-lg rounded-2xl overflow-hidden">
+                
+                <!-- Header -->
+                <div class="px-8 py-6 border-b border-slate-100 bg-white/50">
+                    <div class="flex items-center gap-3 mb-1">
+                        <div class="p-2 bg-amber-50 rounded-lg border border-amber-100 text-amber-600">
+                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        </div>
+                        <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Create Maintenance</h1>
+                    </div>
+                    <p class="text-sm text-slate-500 ml-12">Create a new bill or service record.</p>
+                </div>
+
+                <!-- Form -->
+                <form action="/maintains" method="POST" autocomplete="off" class="p-8 space-y-6">
+                    
+                    <!-- Title -->
+                    <div>
+                        <label for="title" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                            Title
+                        </label>
+                        <input type="text" id="title" name="maintainData[title]" required 
+                            placeholder="e.g. Monthly Maintenance - Flat 101"
+                            class="block w-full rounded-xl border-slate-200 bg-slate-50 text-slate-700 px-4 py-3 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all text-sm placeholder-slate-400 shadow-sm">
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <label for="description" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                            Description
+                        </label>
+                        <textarea id="description" name="maintainData[description]" rows="3" 
+                            placeholder="Enter detailed description..."
+                            class="block w-full rounded-xl border-slate-200 bg-slate-50 text-slate-700 px-4 py-3 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all text-sm placeholder-slate-400 shadow-sm resize-none"></textarea>
+                    </div>
+
+                    <!-- Grid: Amount, Due Date & Frequency -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        
+                        <!-- Amount -->
+                        <div>
+                            <label for="amount" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                                Amount (₹)
+                            </label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 font-sans">₹</span>
+                                <input type="number" id="amount" name="maintainData[amount]" step="0.01" min="0" required
+                                    placeholder="0.00"
+                                    class="block w-full rounded-xl border-slate-200 bg-slate-50 text-slate-700 pl-8 pr-4 py-3 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all text-sm placeholder-slate-400 shadow-sm">
+                            </div>
+                        </div>
+
+                        <!-- Due Date -->
+                        <div>
+                            <label for="dueDate" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                                Due Date
+                            </label>
+                            <input type="date" id="dueDate" name="maintainData[dueDate]" required 
+                                class="block w-full rounded-xl border-slate-200 bg-slate-50 text-slate-700 px-4 py-3 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all text-sm shadow-sm">
+                        </div>
+
+                        <!-- Frequency -->
+                        <div>
+                            <label for="frequency" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                                Frequency
+                            </label>
+                            <select id="frequency" name="maintainData[frequency]" 
+                                class="block w-full rounded-xl border-slate-200 bg-slate-50 text-slate-700 px-4 py-3 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all text-sm shadow-sm appearance-none">
+                                <option value="one-time">One-time</option>
+                                <option value="Monthly" selected>Monthly</option>
+                                <option value="Quarterly">Quarterly</option>
+                                <option value="Yearly">Yearly</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- User Assignment Logic -->
+                    <% if (currUser && currUser.role === 'Secretary') { %>
+                        <div>
+                            <label for="user" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                                Assign To (Resident)
+                            </label>
+                            <div class="relative">
+                                <select id="user" name="maintainData[user]" required 
+                                    class="block w-full rounded-xl border-slate-200 bg-slate-50 text-slate-700 px-4 py-3 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all text-sm shadow-sm appearance-none">
+                                    <% if (typeof users !== 'undefined' && users.length) { %>
+                                        <option value="" disabled selected>Select a resident...</option>
+                                        <% users.forEach(u => { %>
+                                            <option value="<%= u._id %>">
+                                                <%= (u.profile && u.profile.fullName) ? u.profile.fullName : (u.username || u.email) %>
+                                                <%= (u.profile && u.profile.houseNo) ? ` — ${u.profile.houseNo}` : '' %>
+                                            </option>
+                                        <% }) %>
+                                    <% } else { %>
+                                        <option disabled selected>No users found (Check Controller)</option>
+                                    <% } %>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-500">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                </div>
+                            </div>
+                        </div>
+                    <% } else { %>
+                        <!-- Resident creating their own maintenance: set hidden user id -->
+                        <input type="hidden" name="maintainData[user]" value="<%= currUser ? currUser._id : '' %>" />
+                    <% } %>
+
+                    <!-- Notes (Optional) -->
+                    <div>
+                        <label for="notes" class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+                            Notes (Optional)
+                        </label>
+                        <textarea id="notes" name="maintainData[notes]" rows="2" 
+                            placeholder="Any additional remarks..."
+                            class="block w-full rounded-xl border-slate-200 bg-slate-50 text-slate-700 px-4 py-3 focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all text-sm placeholder-slate-400 shadow-sm resize-none"></textarea>
+                    </div>
+
+                    <!-- Hidden Status (Default: pending) -->
+                    <input type="hidden" name="maintainData[status]" value="pending" />
+
+                    <!-- Submit Button -->
+                    <div class="pt-6 border-t border-slate-100">
+                        <button type="submit" class="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-lg shadow-amber-500/20 text-sm font-bold text-white bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all transform hover:-translate-y-0.5">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            Create Maintenance Record
+                        </button>
+                        
+                        <div class="mt-4 text-center">
+                            <a href="/maintains" class="text-xs font-medium text-slate-400 hover:text-amber-600 transition-colors">
+                                Cancel
+                            </a>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </main>
+</div>

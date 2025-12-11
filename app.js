@@ -20,8 +20,8 @@ const localStrategy = require("passport-local");
 const User = require("./models/user.js");
 const { isLoggedIn } = require("./middleware.js");
 const Event = require("./models/Event.js");
-const { title } = require("process");
-const {isSecretary} = require("./middleware.js")
+const {isSecretary} = require("./middleware.js");
+const MainSetting = require("./models/MainSetting.js");
 
 
 
@@ -416,57 +416,127 @@ app.delete("/alerts/:id", async (req, res) => {
 
 //Maintainance Section:
 //Route
-app.get("/maintains", async (req, res) => {
-    const allMaintain = await Maintainance.find({});
-    res.render("./Maintainance/MaintainancePage.ejs", { allMaintain });
-});
-
+app.get('/maintains', isLoggedIn, async (req, res) => {
+  try {
+    let maintains;
+    if (req.user.role === 'Secretary') {
+      maintains = await Maintainance.find({}).populate('user', 'username profile').sort({ dueDate: 1 });
+    } else {
+      maintains = await Maintainance.find({ user: req.user._id }).sort({ dueDate: 1 });
+    }
+    res.render('maintains/index', { maintains, currUser: req.user });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+}); 
 //New Route
-app.get("/maintains/new", (req, res) => {
-    res.render("./Maintainance/New.ejs");
+app.get("/maintains/new",async (req, res) => {
+    const users = await User.find({}).select('profile username');
+    res.render("./Maintains/New.ejs" , {users , currUser: req.user});
 });
 
-app.post("/maintains", async (req, res) => {
-    const newData = new Maintainance(req.body.maintainData);
-    newData.save();
-    res.redirect("/maintains");
 
-})
+app.post('/maintains', isLoggedIn, async (req, res) => {
+  try {
+    // Allow Secretary to create bills for any user, residents can create for themselves (if desired)
+    let payload = req.body.maintainData || req.body; // support either shape
+    // If resident creating and user field is absent, set to req.user._id
+    if (!req.user) return res.redirect('/login');
+    if (req.user.role !== 'Secretary') {
+      // force user to be the current user
+      payload.user = req.user._id;
+      // use user's houseNo if not provided
+      payload.houseNo = (req.user.profile && req.user.profile.houseNo) ? req.user.profile.houseNo : payload.houseNo;
+      payload.createdBy = req.user._id;
+    } else {
+      // Secretary creating: ensure payload.user exists and houseNo is correct snapshot
+      if (payload.user) {
+        const u = await User.findById(payload.user);
+        if (u && u.profile && u.profile.houseNo) payload.houseNo = u.profile.houseNo;
+      }
+      payload.createdBy = req.user._id;
+    }
 
-//Edit Route 
-app.get("/events/:id/edit" , async(req , res)=>{
-    let {id} = req.params;
-    const eventData = await Event.findById(id);
-    res.render("./Events/Edit.ejs" ,{eventData});
+    // Ensure required fields: user, houseNo, amount, dueDate, title
+    if (!payload.user || !payload.houseNo || !payload.amount || !payload.dueDate || !payload.title) {
+      return res.status(400).send('Missing required fields');
+    }
+
+    await Maintainance.create(payload);
+    res.redirect('/maintains');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Create error');
+  }
 });
-
-app.put("/events/:id" , async(req , res)=>{
-    let{id} = req.params;
-    await Event.findByIdAndUpdate(id , {...req.body.eventData});
-    res.redirect("/events")
-})
-
 
 
 //Show Maintains
-app.get("/maintains/:id", async (req, res) => {
-    let { id } = req.params;
-    const maintainData = await Maintainance.findById(id);
-    res.render("./Maintainance/ShowMaintainance.ejs", { maintainData })
-})
+app.get('/maintains/:id', isLoggedIn, async (req, res) => {
+  try {
+    const maintain = await Maintainance.findById(req.params.id).populate('user', 'username profile');
+    if (!maintain) return res.status(404).send('Not found');
+
+    // Authorization: resident can see only own records
+    if (req.user.role !== 'Secretary' && String(maintain.user?._id) !== String(req.user._id)) {
+      return res.status(403).send('Forbidden');
+    }
+
+    res.render('maintains/show', { maintain, currUser: req.user });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+});
 
 //Edit Route 
-app.get("/maintains/:id/edit", async (req, res) => {
-    let { id } = req.params;
-    const maintainData = await Maintainance.findById(id);
-    res.render("./Maintainance/Edit.ejs", { maintainData })
+app.get('/maintains/:id/edit', isLoggedIn, isSecretary, async (req, res) => {
+  try {
+    const maintain = await Maintainance.findById(req.params.id);
+    if (!maintain) return res.redirect('/maintains');
+    // load users list for potential reassignment
+    const users = await User.find({}).select('profile username');
+    res.render('maintains/edit', { maintain, users, currUser: req.user });
+  } catch (err) {
+    console.error(err);
+    res.redirect('/maintains');
+  }
+});
 
-})
 //Update Route 
-app.put("/maintains/:id", async (req, res) => {
-    let { id } = req.params;
-    await Maintainance.findByIdAndUpdate(id, { ...req.body.maintainData });
-    res.redirect("/maintains");
+app.put('/maintains/:id', isLoggedIn, isSecretary, async (req, res) => {
+  try {
+    const payload = req.body.maintainData || req.body;
+    // If user changed, update houseNo snapshot too
+    if (payload.user) {
+      const u = await User.findById(payload.user);
+      if (u && u.profile && u.profile.houseNo) payload.houseNo = u.profile.houseNo;
+    }
+    await Maintainance.findByIdAndUpdate(req.params.id, { ...payload }, { runValidators: true });
+    res.redirect('/maintains');
+  } catch (err) {
+    console.error(err);
+    res.redirect('/maintains');
+  }
+});
+app.post('/maintains/:id/pay', isLoggedIn, async (req, res) => {
+  try {
+    const maintain = await Maintainance.findById(req.params.id);
+    if (!maintain) return res.redirect('/maintains');
+    // allow owner or secretary
+    if (req.user.role !== 'Secretary' && String(maintain.user) !== String(req.user._id)) {
+      return res.status(403).send('Forbidden');
+    }
+    maintain.status = 'paid';
+    maintain.paidAt = new Date();
+    if (req.body.paymentRef) maintain.paymentRef = req.body.paymentRef;
+    await maintain.save();
+    res.redirect('/maintains/' + req.params.id);
+  } catch (err) {
+    console.error(err);
+    res.redirect('/maintains');
+  }
 });
 
 //Delete Route 
@@ -475,6 +545,7 @@ app.delete("/maintains/:id", async (req, res) => {
     await Maintainance.findByIdAndDelete(id);
     res.redirect("/maintains");
 })
+
 
 
 
@@ -498,6 +569,19 @@ app.post("/events" , async(req , res)=>{
     await newData.save();
     res.redirect("/event");
 })
+//Edit Route 
+app.get("/events/:id/edit" , async(req , res)=>{
+    let {id} = req.params;
+    const eventData = await Event.findById(id);
+    res.render("./Events/Edit.ejs" ,{eventData});
+});
+
+app.put("/events/:id" , async(req , res)=>{
+    let{id} = req.params;
+    await Event.findByIdAndUpdate(id , {...req.body.eventData});
+    res.redirect("/events")
+})
+
 
 //Show Route 
 app.get("/events/:id" , async(req , res)=>{
@@ -623,6 +707,185 @@ app.delete("/manage/:id" , async(req , res)=>{
     await User.findByIdAndDelete(id);
     res.redirect("/manage")
 });
+
+
+
+
+
+
+
+
+//Setting system:
+app.get("/setting" , isLoggedIn , isSecretary , async(req , res)=>{
+    // use a name that won't conflict with Express render options
+    const settingList = await MainSetting.find({}).sort({houseNo: 1});
+    res.render("Setting/index.ejs" ,{ settingList, currUser:req.user });
+});
+// NEW form
+app.get('/setting/new', isLoggedIn, isSecretary, (req, res) => {
+  res.render('Setting/new', { currUser: req.user });
+});
+// CREATE
+app.post('/setting', isLoggedIn, isSecretary, async (req, res) => {
+  try {
+    // normalize houseNo
+    const houseNo = (req.body.houseNo || '').trim().toUpperCase();
+    const { title, description, amount, frequency } = req.body;
+    await MainSetting.create({
+      houseNo,
+      title,
+      description,
+      amount: Number(amount),
+      frequency,
+      createdBy: req.user._id
+    });
+    res.redirect('/setting');
+  } catch (err) {
+    console.error(err);
+    res.render('Setting/new', { errorMessage: 'Create failed', currUser: req.user });
+  }
+});
+
+// EDIT form
+app.get('/setting/:id/edit', isLoggedIn, isSecretary, async (req, res) => {
+  const setting = await MainSetting.findById(req.params.id);
+  if (!setting) return res.redirect('/setting');
+  res.render('Setting/edit.ejs', { setting, currUser: req.user });
+});
+
+// UPDATE
+app.put('/setting/:id', isLoggedIn, isSecretary, async (req, res) => {
+  try {
+    const houseNo = (req.body.houseNo || '').trim().toUpperCase();
+    const { title, description, amount, frequency, active } = req.body;
+    await MainSetting.findByIdAndUpdate(req.params.id, {
+      houseNo, title, description, amount: Number(amount), frequency, active: active === 'on'
+    }, { runValidators: true });
+    res.redirect('/setting');
+  } catch (err) {
+    console.error(err);
+    res.redirect('/setting');
+  }
+});
+
+// DELETE
+app.delete('/setting/:id', isLoggedIn, isSecretary, async (req, res) => {
+  await MainSetting.findByIdAndDelete(req.params.id);
+  res.redirect('/setting');
+});
+
+
+// POST /settings/:id/preview
+app.post('/setting/:id/preview', isLoggedIn, isSecretary, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { dueDate } = req.body; // expected 'YYYY-MM-DD' from a date input
+    if (!dueDate) return res.status(400).json({ error: 'dueDate required' });
+
+    const setting = await MainSetting.findById(id);
+    if (!setting) return res.status(404).json({ error: 'Setting not found' });
+
+    // Normalize houseNo
+    const houseNo = (setting.houseNo || '').trim().toUpperCase();
+
+    // Find users with this houseNo
+    const users = await User.find({ 'profile.houseNo': houseNo }).select('profile username email');
+
+    // Calculate month window
+    const due = new Date(dueDate);
+    const monthStart = new Date(due.getFullYear(), due.getMonth(), 1);
+    const monthEnd = new Date(due.getFullYear(), due.getMonth() + 1, 0, 23, 59, 59, 999);
+
+    // Find existing bills for these users in that month with same title to avoid duplicates
+    const userIds = users.map(u => u._id);
+    const existing = await Maintainance.find({
+      user: { $in: userIds },
+      title: setting.title,
+      dueDate: { $gte: monthStart, $lte: monthEnd }
+    }).select('user');
+
+    const existingUserSet = new Set(existing.map(e => String(e.user)));
+
+    // Prepare preview payload
+    const preview = users.map(u => ({
+      userId: u._id,
+      name: u.profile?.fullName || u.username || u.email || 'Unknown',
+      houseNo: houseNo,
+      willCreate: !existingUserSet.has(String(u._id)) // true -> a new bill would be created
+    }));
+
+    res.json({ countMatched: users.length, preview, existingCount: existing.length });
+  } catch (err) {
+    console.error('Preview error', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
+// POST /settings/:id/generate
+app.post('/setting/:id/generate', isLoggedIn, isSecretary, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { dueDate } = req.body;
+    if (!dueDate) return res.status(400).send('dueDate required');
+
+    const setting = await MainSetting.findById(id);
+    if (!setting) return res.status(404).send('Setting not found');
+
+    const houseNo = (setting.houseNo || '').trim().toUpperCase();
+
+    // Find users for this houseNo
+    const users = await User.find({ 'profile.houseNo': houseNo }).select('_id profile');
+
+    if (!users.length) {
+      return res.status(200).send('No users matched this setting.');
+    }
+
+    const due = new Date(dueDate);
+    const monthStart = new Date(due.getFullYear(), due.getMonth(), 1);
+    const monthEnd = new Date(due.getFullYear(), due.getMonth() + 1, 0, 23, 59, 59, 999);
+
+    const userIds = users.map(u => u._id);
+
+    // Find existing bills in the same month/title (to skip)
+    const existing = await Maintainance.find({
+      user: { $in: userIds },
+      title: setting.title,
+      dueDate: { $gte: monthStart, $lte: monthEnd }
+    }).select('user');
+
+    const existingSet = new Set(existing.map(e => String(e.user)));
+
+    // Prepare docs to insert
+    const docs = [];
+    for (const u of users) {
+      if (existingSet.has(String(u._id))) continue; // skip duplicates
+      docs.push({
+        user: u._id,
+        houseNo: (u.profile && u.profile.houseNo) ? u.profile.houseNo.trim().toUpperCase() : houseNo,
+        title: setting.title,
+        description: setting.description || '',
+        amount: setting.amount,
+        dueDate: due,
+        frequency: setting.frequency || 'Monthly',
+        status: 'pending',
+        createdBy: req.user._id,
+        notes: ''
+      });
+    }
+
+    if (docs.length > 0) {
+      await Maintainance.insertMany(docs);
+    }
+
+    res.json({ inserted: docs.length, skipped: users.length - docs.length, totalMatched: users.length });
+  } catch (err) {
+    console.error('Generate error', err);
+    res.status(500).send('Server error generating bills');
+  }
+});
+
+
 
 
 

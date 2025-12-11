@@ -1,0 +1,154 @@
+<% layout('layouts/layout') %>
+<% locals.title = 'Maintenance Settings' %>
+
+<div class="min-h-screen w-full bg-white relative overflow-y-auto">
+  <div class="absolute inset-0 z-0 pointer-events-none" 
+       style="background-image: linear-gradient(to right, #e5e7eb 1px, transparent 1px), linear-gradient(to bottom, #e5e7eb 1px, transparent 1px); background-size: 40px 40px;">
+  </div>
+
+  <main class="relative z-10 max-w-7xl mx-auto px-6 py-10">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+      <div>
+        <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Maintenance Settings</h1>
+        <p class="text-slate-500 mt-1">Manage recurring bills and maintenance rules.</p>
+      </div>
+
+      <!-- FIXED: use lowercase plural /settings/new -->
+      <a href="/setting/new" class="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-medium shadow-lg shadow-indigo-200 transition-all hover:-translate-y-0.5">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+        Create New Setting
+      </a>
+    </div>
+
+    <div class="bg-white/80 backdrop-blur-xl border border-white/60 shadow-lg rounded-2xl overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50/80 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500 font-bold">
+              <th class="px-6 py-4">House</th>
+              <th class="px-6 py-4">Title</th>
+              <th class="px-6 py-4">Amount</th>
+              <th class="px-6 py-4">Frequency</th>
+              <th class="px-6 py-4 text-center">Active</th>
+              <th class="px-6 py-4 text-right">Actions</th>
+            </tr>
+          </thead>
+
+          <tbody class="divide-y divide-slate-100">
+            <!-- FIXED: use 'settings' array variable -->
+            <% if (settingList && settingList.length > 0) { %>
+              <% settingList.forEach(s => { %>
+                <tr class="hover:bg-slate-50/80 transition-colors group">
+                  <td class="px-6 py-4">
+                    <div class="flex items-center gap-3">
+                      <div class="h-8 w-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-xs border border-slate-200">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                      </div>
+                      <span class="font-medium text-slate-700"><%= s.houseNo %></span>
+                    </div>
+                  </td>
+
+                  <td class="px-6 py-4 text-sm font-medium text-slate-800"><%= s.title %></td>
+
+                  <td class="px-6 py-4">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-sm font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
+                      ₹<%= s.amount %>
+                    </span>
+                  </td>
+
+                  <td class="px-6 py-4 text-sm text-slate-500"><%= s.frequency %></td>
+
+                  <td class="px-6 py-4 text-center">
+                    <% if (s.active) { %>
+                      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700 border border-green-200">
+                        <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Yes
+                      </span>
+                    <% } else { %>
+                      <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-500 border border-slate-200">
+                        <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> No
+                      </span>
+                    <% } %>
+                  </td>
+
+                  <!-- FIXED: Actions cell now contains edit/delete + generate form -->
+                  <td class="px-6 py-4 text-right">
+                    <div class="flex items-center justify-end gap-2">
+
+                      <!-- Generate Form (Preview / Generate) -->
+                      <form class="generate-form mr-3" data-setting-id="<%= s._id %>" onsubmit="return false;">
+                        <input type="date" name="dueDate" required class="rounded px-2 py-1 text-sm" />
+                        <button type="button" class="btn-preview ml-2 px-2 py-1 text-sm bg-slate-100 rounded">Preview</button>
+                        <button type="button" class="btn-generate ml-1 px-2 py-1 text-sm bg-amber-500 text-white rounded">Generate</button>
+                      </form>
+
+                      <!-- Edit -->
+                      <a href="/setting/<%= s._id %>/edit" class="p-2 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all" title="Edit">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                      </a>
+
+                      <!-- Delete -->
+                      <form action="/setting/<%= s._id %>?_method=DELETE" method="post" class="inline">
+                        <button onclick="return confirm('Are you sure you want to delete this setting?')" class="p-2 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all" title="Delete">
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                      </form>
+                    </div>
+
+                    <!-- preview result -->
+                    <div class="preview-result mt-2 text-xs text-slate-600" id="preview-<%= s._id %>"></div>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr>
+                <td colspan="6" class="px-6 py-12 text-center text-slate-500">
+                  <div class="flex flex-col items-center justify-center">
+                    <div class="h-12 w-12 bg-slate-50 rounded-full flex items-center justify-center mb-3">
+                      <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                    </div>
+                    <p class="text-sm font-medium">No settings found.</p>
+                    <p class="text-xs text-slate-400 mt-1">Create a new maintenance rule to get started.</p>
+                  </div>
+                </td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+document.addEventListener('click', async (e) => {
+  if (e.target.matches('.btn-preview') || e.target.matches('.btn-generate')) {
+    const form = e.target.closest('.generate-form');
+    const settingId = form.dataset.settingId;
+    const dueDate = form.querySelector('input[name="dueDate"]').value;
+    if (!dueDate) return alert('Choose due date');
+
+    if (e.target.matches('.btn-preview')) {
+      const resp = await fetch(`/settings/${settingId}/preview`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dueDate })
+      });
+      const data = await resp.json();
+      const el = document.getElementById('preview-' + settingId);
+      if (data.error) el.textContent = 'Error: ' + data.error;
+      else el.innerHTML = `Matched: ${data.countMatched}. Existing bills for month: ${data.existingCount}. <br>
+        <small>${data.preview.slice(0,5).map(p => p.name + (p.willCreate ? '' : ' (already billed)')).join('<br>')}</small>`;
+    } else {
+      if (!confirm('Generate bills now? This action will create records for matched users (skipping duplicates).')) return;
+      const resp = await fetch(`/settings/${settingId}/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dueDate })
+      });
+      const json = await resp.json();
+      const el = document.getElementById('preview-' + settingId);
+      el.textContent = `Inserted: ${json.inserted}, Skipped: ${json.skipped}, Total matched: ${json.totalMatched}`;
+    }
+  }
+});
+</script>
